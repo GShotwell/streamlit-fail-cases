@@ -7,7 +7,7 @@ from shiny import App, reactive, render, ui
 
 app_ui = ui.page_fluid(
     ui.h2("Streaming data"),
-    ui.input_slider("rate", "Refresh rate", 0.2, 2, 0.2, step=0.05),
+    ui.input_slider("rate", "Refresh rate", 0.2, 2, 0.5, step=0.05),
     ui.input_action_button("reset", "Reset", style="background: blue; color: white"),
     ui.output_plot("random_walk"),
 )
@@ -27,16 +27,14 @@ def server(input, output, session):
     def random_data():
         reactive.invalidate_later(input.rate())
 
-        # Create fake data
+        # We use reactive isolate here to avoid a loop
+        # since `val` is accessed and set in the same reactive calc.
         with reactive.isolate():
             last_run = val.get()
 
-        # Generate new row
         new_x = last_run['x'].iloc[-1] + 1
         new_y = last_run['y'].iloc[-1] + random.uniform(-5, 5)
         new_row = pd.DataFrame({'x': [new_x], 'y': [new_y]})
-
-        # Append new row to DataFrame
         out = pd.concat([last_run, new_row], axis=0, ignore_index=True)
         out = out.tail(100)
 
