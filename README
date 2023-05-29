@@ -1,0 +1,4 @@
+This is a simple app to illustrate two features of Shiny:
+
+1) You can apply CSS styles to individual elements
+2) You can stream data with `invalidate_later()`
